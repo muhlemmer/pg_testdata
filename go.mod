@@ -1,6 +1,6 @@
 module github.com/muhlemmer/pg_testdata
 
-go 1.17
+go 1.15
 
 require github.com/jackc/pgtype v1.8.1
 

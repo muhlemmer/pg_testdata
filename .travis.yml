@@ -1,0 +1,13 @@
+language: go
+
+go:
+- 1.15
+- 1.x
+- master
+
+script:
+  - go test -race -coverprofile=types.cov -covermode=atomic ./types
+
+after_script:
+  - bash <(curl -s https://codecov.io/bash) -f '*.cov'
+  
