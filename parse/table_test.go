@@ -25,7 +25,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/muhlemmer/pg_testdata/types"
+	"github.com/muhlemmer/pg_testdata/generator"
 )
 
 func Test_commaList_String(t *testing.T) {
@@ -136,8 +136,8 @@ func Test_Table_insert(t *testing.T) {
 			insertTmpl,
 			"insert into articles (published, special) values ($1, $2);",
 			[]interface{}{
-				types.NewBool(1, 0, 1),
-				types.NewBool(2, 50, 99),
+				generator.NewBool(1, 0, 1),
+				generator.NewBool(2, 50, 99),
 			},
 			false,
 		},
@@ -220,8 +220,8 @@ func Test_Table_InsertQuery(t *testing.T) {
 			},
 			"insert into articles (published, special) values ($1, $2);",
 			[]interface{}{
-				types.NewBool(1, 0, 1),
-				types.NewBool(2, 50, 99),
+				generator.NewBool(1, 0, 1),
+				generator.NewBool(2, 50, 99),
 			},
 			false,
 		},

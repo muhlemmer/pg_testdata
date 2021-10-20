@@ -18,31 +18,33 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package types
+package generator
 
 import (
 	"github.com/jackc/pgtype"
 )
 
-// NewNullGenerator returns a Probability if nullProbability > 0, nil otherwise.
-func NewNullGenerator(seed int64, nullProbability int) *Probability {
+// NewNull returns a Probability generator if nullProbability > 0, nil otherwise.
+func NewNull(seed int64, nullProbability int) *Probability {
 	if nullProbability > 0 {
 		return NewProbability(seed, nullProbability)
 	}
 	return nil
 }
 
-type ValueGenerator interface {
+// Value generates a pgtype value on each read access.
+type Value interface {
 	pgtype.ValueTranscoder
+	// NextValue populates the Value with a newly generated value.
 	NextValue()
 }
 
-type valueGenerator struct {
-	ValueGenerator
+type value struct {
+	Value
 	nulls *Probability
 }
 
-func (v *valueGenerator) nextStatusValue() {
+func (v *value) nextStatusValue() {
 	if v.nulls != nil && v.nulls.Get() {
 		v.Set(nil)
 		return
@@ -50,22 +52,22 @@ func (v *valueGenerator) nextStatusValue() {
 	v.NextValue()
 }
 
-func (v *valueGenerator) AssignTo(dst interface{}) error {
+func (v *value) AssignTo(dst interface{}) error {
 	v.nextStatusValue()
-	return v.ValueGenerator.AssignTo(dst)
+	return v.Value.AssignTo(dst)
 }
 
-func (v valueGenerator) EncodeBinary(ci *pgtype.ConnInfo, buf []byte) ([]byte, error) {
+func (v value) EncodeBinary(ci *pgtype.ConnInfo, buf []byte) ([]byte, error) {
 	v.nextStatusValue()
-	return v.ValueGenerator.EncodeBinary(ci, buf)
+	return v.Value.EncodeBinary(ci, buf)
 }
 
-func (v valueGenerator) EncodeText(ci *pgtype.ConnInfo, buf []byte) ([]byte, error) {
+func (v value) EncodeText(ci *pgtype.ConnInfo, buf []byte) ([]byte, error) {
 	v.nextStatusValue()
-	return v.ValueGenerator.EncodeText(ci, buf)
+	return v.Value.EncodeText(ci, buf)
 }
 
-func (v valueGenerator) Get() interface{} {
+func (v value) Get() interface{} {
 	v.nextStatusValue()
-	return v.ValueGenerator.Get()
+	return v.Value.Get()
 }

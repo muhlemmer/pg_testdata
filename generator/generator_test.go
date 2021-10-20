@@ -18,7 +18,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package types
+package generator
 
 import (
 	"reflect"
@@ -27,7 +27,7 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-func TestNewNullGenerator(t *testing.T) {
+func TestNewNull(t *testing.T) {
 	type args struct {
 		seed            int64
 		nullProbability int
@@ -64,8 +64,8 @@ func TestNewNullGenerator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewNullGenerator(tt.args.seed, tt.args.nullProbability); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewNullGenerator() = %v, want %v", got, tt.want)
+			if got := NewNull(tt.args.seed, tt.args.nullProbability); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewNull() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -81,10 +81,10 @@ func (g *testType) NextValue() {
 	g.Int4.Status = pgtype.Present
 }
 
-func Test_valueGenerator_Get(t *testing.T) {
+func Test_value_Get(t *testing.T) {
 	type fields struct {
-		ValueGenerator ValueGenerator
-		nulls          *Probability
+		Value Value
+		nulls *Probability
 	}
 	tests := []struct {
 		name   string
@@ -94,14 +94,14 @@ func Test_valueGenerator_Get(t *testing.T) {
 		{
 			"null",
 			fields{
-				ValueGenerator: &testType{
+				Value: &testType{
 					Int4: pgtype.Int4{
 						Int:    3,
 						Status: pgtype.Present,
 					},
 					nextVal: 22,
 				},
-				nulls: NewNullGenerator(1, 100),
+				nulls: NewNull(1, 100),
 			},
 			nil,
 		},
@@ -109,7 +109,7 @@ func Test_valueGenerator_Get(t *testing.T) {
 			"nil nulls",
 			fields{
 
-				ValueGenerator: &testType{
+				Value: &testType{
 					Int4: pgtype.Int4{
 						Int:    3,
 						Status: pgtype.Present,
@@ -123,21 +123,21 @@ func Test_valueGenerator_Get(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := valueGenerator{
-				ValueGenerator: tt.fields.ValueGenerator,
-				nulls:          tt.fields.nulls,
+			v := value{
+				Value: tt.fields.Value,
+				nulls: tt.fields.nulls,
 			}
 			if got := v.Get(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("valueGenerator.Get() = %T(%v), want %T(%v)", got, got, tt.want, tt.want)
+				t.Errorf("value.Get() = %T(%v), want %T(%v)", got, got, tt.want, tt.want)
 			}
 		})
 	}
 }
 
-func Test_valueGenerator_AssignTo(t *testing.T) {
+func Test_value_AssignTo(t *testing.T) {
 	type fields struct {
-		ValueGenerator ValueGenerator
-		nulls          *Probability
+		Value Value
+		nulls *Probability
 	}
 	tests := []struct {
 		name   string
@@ -147,14 +147,14 @@ func Test_valueGenerator_AssignTo(t *testing.T) {
 		{
 			"null",
 			fields{
-				ValueGenerator: &testType{
+				Value: &testType{
 					Int4: pgtype.Int4{
 						Int:    3,
 						Status: pgtype.Present,
 					},
 					nextVal: 22,
 				},
-				nulls: NewNullGenerator(1, 100),
+				nulls: NewNull(1, 100),
 			},
 			0,
 		},
@@ -162,7 +162,7 @@ func Test_valueGenerator_AssignTo(t *testing.T) {
 			"nil nulls",
 			fields{
 
-				ValueGenerator: &testType{
+				Value: &testType{
 					Int4: pgtype.Int4{
 						Int:    3,
 						Status: pgtype.Present,
@@ -176,15 +176,15 @@ func Test_valueGenerator_AssignTo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := valueGenerator{
-				ValueGenerator: tt.fields.ValueGenerator,
-				nulls:          tt.fields.nulls,
+			v := value{
+				Value: tt.fields.Value,
+				nulls: tt.fields.nulls,
 			}
 			var got int
 
 			v.AssignTo(&got)
 			if got != tt.want {
-				t.Errorf("valueGenerator.Get() = %T(%v), want %T(%v)", got, got, tt.want, tt.want)
+				t.Errorf("value.AssignTo() = %T(%v), want %T(%v)", got, got, tt.want, tt.want)
 			}
 		})
 	}

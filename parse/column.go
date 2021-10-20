@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/muhlemmer/pg_testdata/types"
+	"github.com/muhlemmer/pg_testdata/generator"
 )
 
 type TypeName string
@@ -84,7 +84,7 @@ func (c *column) requiredGenOpts(tp TypeName, keys ...ArgName) {
 	}
 }
 
-func (c *column) boolType() types.ValueGenerator {
+func (c *column) boolType() generator.Value {
 	c.requiredGenOpts(BoolType, ProbabilityArg)
 
 	prob, ok := c.Generator[ProbabilityArg].(int)
@@ -92,11 +92,11 @@ func (c *column) boolType() types.ValueGenerator {
 		c.panic(fmt.Errorf("bool \"probabilty\" incorrect type: %T, expected: int", c.Generator[ProbabilityArg]))
 	}
 
-	return types.NewBool(c.Seed, c.NullProbability, prob)
+	return generator.NewBool(c.Seed, c.NullProbability, prob)
 }
 
 // valueGenerator panics in case of an invalid Type argument.
-func (c *column) valueGenerator() types.ValueGenerator {
+func (c *column) valueGenerator() generator.Value {
 	switch c.Type {
 	case BoolType:
 		return c.boolType()

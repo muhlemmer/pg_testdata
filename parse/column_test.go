@@ -25,7 +25,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/muhlemmer/pg_testdata/types"
+	"github.com/muhlemmer/pg_testdata/generator"
 )
 
 func Test_columnError_Error(t *testing.T) {
@@ -96,7 +96,7 @@ func Test_column_boolType(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		want    types.ValueGenerator
+		want    generator.Value
 		wantErr bool
 	}{
 		{
@@ -126,7 +126,7 @@ func Test_column_boolType(t *testing.T) {
 				NullProbability: 2,
 				Generator:       map[ArgName]interface{}{ProbabilityArg: 50},
 			},
-			types.NewBool(1, 2, 50),
+			generator.NewBool(1, 2, 50),
 			false,
 		},
 	}
@@ -170,7 +170,7 @@ func Test_column_valueGenerator(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		wantVg  types.ValueGenerator
+		wantVg  generator.Value
 		wantErr bool
 	}{
 		{
@@ -188,7 +188,7 @@ func Test_column_valueGenerator(t *testing.T) {
 				Type:      BoolType,
 				Generator: map[ArgName]interface{}{ProbabilityArg: 50},
 			},
-			types.NewBool(1, 2, 50),
+			generator.NewBool(1, 2, 50),
 			false,
 		},
 	}

@@ -18,7 +18,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package types
+package generator
 
 import (
 	"github.com/jackc/pgtype"
@@ -34,11 +34,11 @@ func (b *boolType) NextValue() {
 	b.Bool.Status = pgtype.Present
 }
 
-func NewBool(seed int64, nullProbabilty, probabilty int) ValueGenerator {
-	return &valueGenerator{
-		ValueGenerator: &boolType{
+func NewBool(seed int64, nullProbabilty, probabilty int) Value {
+	return &value{
+		Value: &boolType{
 			generator: NewProbability(seed, probabilty),
 		},
-		nulls: NewNullGenerator(seed, nullProbabilty),
+		nulls: NewNull(seed, nullProbabilty),
 	}
 }
