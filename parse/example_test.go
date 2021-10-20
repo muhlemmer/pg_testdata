@@ -33,7 +33,7 @@ var example = Config{
 		{
 			Name:   "articles",
 			Amount: 10000,
-			Columns: []*Column{
+			Columns: []*column{
 				{
 					Name:            "published",
 					Seed:            2,
@@ -46,10 +46,6 @@ var example = Config{
 			},
 		},
 	},
-}
-
-func init() {
-	example.setColTableNames()
 }
 
 func writeExample(filename string) error {

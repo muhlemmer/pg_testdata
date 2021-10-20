@@ -22,6 +22,7 @@ package parse
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhlemmer/pg_testdata/types"
 )
@@ -41,76 +42,66 @@ const (
 	ProbabilityArg ArgName = "probability"
 )
 
-// Column information and parameters.
-type Column struct {
+// column information and parameters.
+type column struct {
 	Name            string
 	Seed            int64
 	NullProbability int
 	Type            TypeName
 	Generator       map[ArgName]interface{}
-
-	table *Table
 }
 
-// MissingArgsError is returned when required Generator arguments
-// for the specified column type are missing
-type MissingArgsError struct {
-	Keys []ArgName
-	Type TypeName
+type columnError struct {
+	err    error
+	column string
 }
 
-func (e *MissingArgsError) Error() string {
-	return fmt.Sprintf("missing %s arguments for %s", e.Keys, e.Type)
+func (e *columnError) Error() string {
+	return fmt.Sprintf("%v in column %s", e.err, e.column)
+}
+
+func (c *column) panic(err error) {
+	panic(&columnError{
+		err:    err,
+		column: c.Name,
+	})
 }
 
 // requiredGenOpts checks if the required "keys" are present in the
 // Generator arguments map. If any keys are found missing,
 // all missing keys are collected and passed to panic() in a MissingArgsError.
-func (c *Column) requiredGenOpts(tp TypeName, keys ...ArgName) {
-	var missing []ArgName
+func (c *column) requiredGenOpts(tp TypeName, keys ...ArgName) {
+	var missing []string
 
 	for _, k := range keys {
 		if _, ok := c.Generator[k]; !ok {
-			missing = append(missing, k)
+			missing = append(missing, string(k))
 		}
 	}
 
 	if len(missing) > 0 {
-		panic(&MissingArgsError{missing, tp})
+		c.panic(fmt.Errorf("missing arguments %q for type %q", strings.Join(missing, " ,"), tp))
 	}
 }
 
-func (c *Column) boolType() types.ValueGenerator {
+func (c *column) boolType() types.ValueGenerator {
 	c.requiredGenOpts(BoolType, ProbabilityArg)
 
 	prob, ok := c.Generator[ProbabilityArg].(int)
 	if !ok {
-		panic(fmt.Errorf("bool \"probabilty\" incorrect type: %T, expected: int", c.Generator[ProbabilityArg]))
+		c.panic(fmt.Errorf("bool \"probabilty\" incorrect type: %T, expected: int", c.Generator[ProbabilityArg]))
 	}
 
 	return types.NewBool(c.Seed, c.NullProbability, prob)
 }
 
 // valueGenerator panics in case of an invalid Type argument.
-func (c *Column) valueGenerator() types.ValueGenerator {
+func (c *column) valueGenerator() types.ValueGenerator {
 	switch c.Type {
 	case BoolType:
 		return c.boolType()
 	default:
-		panic(fmt.Errorf("unsuported type %q", c.Type))
+		c.panic(fmt.Errorf("unsuported type %q", c.Type))
+		return nil
 	}
-}
-
-// ValueGenerator constructs the generator for this column.
-// An error is returned when the requested Type is not supported,
-// any required Generator arguments missing or a wrong type of any of the Generator arguments.
-func (c *Column) ValueGenerator() (vg types.ValueGenerator, err error) {
-	defer func() {
-		err, _ = recover().(error)
-		if err != nil {
-			err = fmt.Errorf("ValueGenerator: %w for column %s.%s", err, c.table.Name, c.Name)
-		}
-	}()
-
-	return c.valueGenerator(), nil
 }

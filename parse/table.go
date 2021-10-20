@@ -46,16 +46,10 @@ type insertData struct {
 type Table struct {
 	Name    string // Name of the Table
 	Amount  int    // Amount of Rows to generate and insert
-	Columns []*Column
+	Columns []*column
 }
 
-func (table *Table) setColTableNames() {
-	for i := range table.Columns {
-		table.Columns[i].table = table
-	}
-}
-
-func (table *Table) insert(tmpl *template.Template) (string, []interface{}, error) {
+func (table *Table) insert(tmpl *template.Template) (string, []interface{}) {
 	data := insertData{
 		Table:     table.Name,
 		Columns:   make(commaList, len(table.Columns)),
@@ -68,25 +62,29 @@ func (table *Table) insert(tmpl *template.Template) (string, []interface{}, erro
 	for i, col := range table.Columns {
 		data.Columns[i] = col.Name
 		data.Positions[i] = fmt.Sprintf("$%d", i+1)
-
-		args[i], err = col.ValueGenerator()
-		if err != nil {
-			return "", nil, err
-		}
+		args[i] = col.valueGenerator()
 	}
 
 	var buf strings.Builder
 	if err = tmpl.Execute(&buf, &data); err != nil {
-		return "", nil, err
+		panic(err)
 	}
 
-	return buf.String(), args, nil
+	return buf.String(), args
 }
 
-func (table *Table) Insert() (stmt string, args []interface{}, err error) {
-	if stmt, args, err = table.insert(insertTmpl); err != nil {
-		err = fmt.Errorf("query.Insert: %w", err)
-	}
+// InsertQuery with args for this table.
+// The returned stmt can be used as prepared statement.
+// The returned args can be reused for each iteration of the prepared statement.
+// On each access, the args generate a new value, corresponding to the Generator
+// options passed for each column / type.
+func (table *Table) InsertQuery() (stmt string, args []interface{}, err error) {
+	defer func() {
+		if err, _ = recover().(error); err != nil {
+			err = fmt.Errorf("parse.InsertQuery: %w in table %s", err, table.Name)
+		}
+	}()
 
+	stmt, args = table.insert(insertTmpl)
 	return
 }

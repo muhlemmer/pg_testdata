@@ -21,27 +21,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package parse
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/muhlemmer/pg_testdata/types"
 )
 
-func TestMissingArgsError_Error(t *testing.T) {
-	e := &MissingArgsError{
-		Keys: []ArgName{MinArg, MaxArg},
-		Type: Int4Type,
+func Test_columnError_Error(t *testing.T) {
+	e := &columnError{
+		fmt.Errorf("foobar"),
+		"column",
 	}
 
-	const want = "missing [min max] arguments for int4"
+	const want = "foobar in column column"
 
 	if got := e.Error(); got != want {
-		t.Errorf("MissingArgsError.Error() = %v, want %v", got, want)
+		t.Errorf("columnError.Error() = %v, want %v", got, want)
 	}
 
 }
 
-func TestColumn_requiredGenOpts(t *testing.T) {
+func Test_column_requiredGenOpts(t *testing.T) {
 	type args struct {
 		tp   TypeName
 		keys []ArgName
@@ -70,7 +71,7 @@ func TestColumn_requiredGenOpts(t *testing.T) {
 			err := func() (err error) {
 				defer func() { err, _ = recover().(error) }()
 
-				c := &Column{
+				c := &column{
 					Generator: tt.Generator,
 				}
 				c.requiredGenOpts(tt.args.tp, tt.args.keys...)
@@ -79,14 +80,14 @@ func TestColumn_requiredGenOpts(t *testing.T) {
 			}()
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Column.requiredGenOpts() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("column.requiredGenOpts() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
 	}
 }
 
-func TestColumn_boolType(t *testing.T) {
+func Test_column_boolType(t *testing.T) {
 	type fields struct {
 		Seed            int64
 		NullProbability int
@@ -131,7 +132,7 @@ func TestColumn_boolType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Column{
+			c := &column{
 				Seed:            tt.fields.Seed,
 				NullProbability: tt.fields.NullProbability,
 				Generator:       tt.fields.Generator,
@@ -146,7 +147,7 @@ func TestColumn_boolType(t *testing.T) {
 			}()
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Column.boolType() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("column.boolType() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
@@ -155,14 +156,11 @@ func TestColumn_boolType(t *testing.T) {
 
 const unsupportedType TypeName = "unsupported"
 
-func TestColumn_ValueGenerator(t *testing.T) {
-	column := Column{
+func Test_column_valueGenerator(t *testing.T) {
+	col := column{
 		Name:            "test_column",
 		Seed:            1,
 		NullProbability: 2,
-		table: &Table{
-			Name: "test_table",
-		},
 	}
 
 	type fields struct {
@@ -196,21 +194,27 @@ func TestColumn_ValueGenerator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Column{
-				Name:            column.Name,
-				Seed:            column.Seed,
-				NullProbability: column.NullProbability,
-				Type:            tt.fields.Type,
-				Generator:       tt.fields.Generator,
-				table:           column.table,
-			}
-			gotVg, err := c.ValueGenerator()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Column.ValueGenerator() error = %v, wantErr %v", err, tt.wantErr)
+			err := func() (err error) {
+				defer func() { err, _ = recover().(error) }()
+
+				c := &column{
+					Name:            col.Name,
+					Seed:            col.Seed,
+					NullProbability: col.NullProbability,
+					Type:            tt.fields.Type,
+					Generator:       tt.fields.Generator,
+				}
+				gotVg := c.valueGenerator()
+				if !reflect.DeepEqual(gotVg, tt.wantVg) {
+					t.Errorf("column.valueGenerator() = %v, want %v", gotVg, tt.wantVg)
+				}
+
 				return
-			}
-			if !reflect.DeepEqual(gotVg, tt.wantVg) {
-				t.Errorf("Column.ValueGenerator() = %v, want %v", gotVg, tt.wantVg)
+			}()
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("column.valueGenerator() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 		})
 	}

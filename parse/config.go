@@ -51,13 +51,5 @@ func Load(filename string) (*Config, error) {
 		return nil, fmt.Errorf("config.Load: %w", err)
 	}
 
-	conf.setColTableNames()
-
 	return conf, nil
-}
-
-func (c *Config) setColTableNames() {
-	for _, table := range c.Tables {
-		table.setColTableNames()
-	}
 }

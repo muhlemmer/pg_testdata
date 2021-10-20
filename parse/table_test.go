@@ -70,7 +70,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*Column{
+				Columns: []*column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -90,7 +90,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*Column{
+				Columns: []*column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -112,7 +112,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*Column{
+				Columns: []*column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -144,24 +144,28 @@ func Test_Table_insert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.table.setColTableNames()
+			err := func() (err error) {
+				defer func() { err, _ = recover().(error) }()
 
-			got, got1, err := tt.table.insert(tt.tmpl)
+				got, got1 := tt.table.insert(tt.tmpl)
+				if got != tt.want {
+					t.Errorf("Table.insert() got = %v, want %v", got, tt.want)
+				}
+				if !reflect.DeepEqual(got1, tt.want1) {
+					t.Errorf("Table.insert() got1 = %v, want %v", got1, tt.want1)
+				}
+				return
+			}()
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Table.insert() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if got != tt.want {
-				t.Errorf("Table.insert() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Table.insert() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
 }
 
-func Test_Table_Insert(t *testing.T) {
+func Test_Table_InsertQuery(t *testing.T) {
 	tests := []struct {
 		name    string
 		table   Table
@@ -174,7 +178,7 @@ func Test_Table_Insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*Column{
+				Columns: []*column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -193,7 +197,7 @@ func Test_Table_Insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*Column{
+				Columns: []*column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -224,18 +228,16 @@ func Test_Table_Insert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.table.setColTableNames()
-
-			got, got1, err := tt.table.Insert()
+			got, got1, err := tt.table.InsertQuery()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Table.insert() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Table.InsertQuery() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("Table.insert() got = %v, want %v", got, tt.want)
+				t.Errorf("Table.InsertQuery() got = %v, want %v", got, tt.want)
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Table.insert() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("Table.InsertQuery() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
