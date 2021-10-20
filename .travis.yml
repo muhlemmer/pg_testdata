@@ -6,8 +6,8 @@ go:
 - master
 
 script:
-  - go test -race -coverprofile=types.cov -covermode=atomic ./types
-  - go test -race -coverprofile=config.cov -covermode=atomic ./config
+  - go test -race -coverprofile=generator.cov -covermode=atomic ./generator
+  - go test -race -coverprofile=parse.cov -covermode=atomic ./parse
 
 after_script:
   - bash <(curl -s https://codecov.io/bash) -f '*.cov'
