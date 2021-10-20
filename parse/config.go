@@ -18,7 +18,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package config
+// Package parse loads yaml from a configuration file, parses its arguments
+// and initializes queries with type specific generator arguments.
+package parse
 
 import (
 	"fmt"
@@ -27,44 +29,35 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var example = Config{
-	DSN: "dbname=testdb user=testuser password=xxx host=localhost port=5432 sslmode=require fallback_application_name=pg_testdata connect_timeout=10",
-	Tables: []*Table{
-		{
-			Name:   "articles",
-			Amount: 10000,
-			Columns: []*Column{
-				{
-					Name:            "published",
-					Seed:            2,
-					NullProbability: 0,
-					Type:            "bool",
-					Generator: map[ArgName]interface{}{
-						ProbabilityArg: 70,
-					},
-				},
-			},
-		},
-	},
+// Config structure root, meant to be marshalled / unmarshalled with yaml.
+type Config struct {
+	DSN    string // Data Source Name, aka connection string.
+	Tables []*Table
 }
 
-func init() {
-	example.setColTableNames()
-}
-
-func writeExample(filename string) error {
-	f, err := os.Create(filename)
+// Load a yaml config file.
+func Load(filename string) (*Config, error) {
+	f, err := os.Open(filename)
 	if err != nil {
-		return fmt.Errorf("writeExample: %w", err)
+		return nil, fmt.Errorf("config.Load: %w", err)
 	}
 	defer f.Close()
 
-	enc := yaml.NewEncoder(f)
-	defer enc.Close()
+	dec := yaml.NewDecoder(f)
 
-	if err = enc.Encode(&example); err != nil {
-		return fmt.Errorf("writeExample: %w", err)
+	conf := new(Config)
+
+	if err = dec.Decode(conf); err != nil {
+		return nil, fmt.Errorf("config.Load: %w", err)
 	}
 
-	return nil
+	conf.setColTableNames()
+
+	return conf, nil
+}
+
+func (c *Config) setColTableNames() {
+	for _, table := range c.Tables {
+		table.setColTableNames()
+	}
 }
