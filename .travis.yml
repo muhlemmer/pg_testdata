@@ -5,6 +5,10 @@ go:
 - 1.x
 - master
 
+jobs:
+  allow_failures:
+  - go: master
+
 script:
   - go test -race -coverprofile=generator.cov -covermode=atomic ./generator
   - go test -race -coverprofile=parse.cov -covermode=atomic ./parse
