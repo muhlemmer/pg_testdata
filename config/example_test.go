@@ -33,7 +33,7 @@ var example = Config{
 		{
 			Name:   "articles",
 			Amount: 10000,
-			Columns: []Column{
+			Columns: []*Column{
 				{
 					Name:            "published",
 					Seed:            2,

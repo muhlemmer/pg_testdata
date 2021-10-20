@@ -29,13 +29,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Table definition
-type Table struct {
-	Name    string // Name of the Table
-	Amount  int    // Amount of Rows to generate and insert
-	Columns []Column
-}
-
 // Config structure root, meant to be marshalled / unmarshalled with yaml.
 type Config struct {
 	DSN    string // Data Source Name, aka connection string.
@@ -65,8 +58,6 @@ func Load(filename string) (*Config, error) {
 
 func (c *Config) setColTableNames() {
 	for _, table := range c.Tables {
-		for i := range table.Columns {
-			table.Columns[i].table = table
-		}
+		table.setColTableNames()
 	}
 }
