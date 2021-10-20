@@ -26,19 +26,24 @@ import (
 
 type boolType struct {
 	pgtype.Bool
-	generator *Probability
+	generator *probability
 }
 
 func (b *boolType) NextValue() {
-	b.Bool.Bool = b.generator.Get()
+	b.Bool.Bool = b.generator.get()
 	b.Bool.Status = pgtype.Present
 }
 
+// NewBool returns a boolean value generator.
+//
+// Probability is a percentage of chance `true` values are generated on each read.
+// If probability is 0 or lower, only `false` values are generated.
+// If probability is 100 or highter, only `true` values are generated.
 func NewBool(seed int64, nullProbabilty, probabilty int) Value {
 	return &value{
 		Value: &boolType{
-			generator: NewProbability(seed, probabilty),
+			generator: newProbability(seed, probabilty),
 		},
-		nulls: NewNull(seed, nullProbabilty),
+		nulls: newNull(seed, nullProbabilty),
 	}
 }

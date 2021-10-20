@@ -27,7 +27,7 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-func TestNewNull(t *testing.T) {
+func Test_newNull(t *testing.T) {
 	type args struct {
 		seed            int64
 		nullProbability int
@@ -35,7 +35,7 @@ func TestNewNull(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *Probability
+		want *probability
 	}{
 		{
 			"Zero probability",
@@ -59,13 +59,13 @@ func TestNewNull(t *testing.T) {
 				1,
 				50,
 			},
-			NewProbability(1, 50),
+			newProbability(1, 50),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewNull(tt.args.seed, tt.args.nullProbability); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewNull() = %v, want %v", got, tt.want)
+			if got := newNull(tt.args.seed, tt.args.nullProbability); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("newNull() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -84,7 +84,7 @@ func (g *testType) NextValue() {
 func Test_value_Get(t *testing.T) {
 	type fields struct {
 		Value Value
-		nulls *Probability
+		nulls *probability
 	}
 	tests := []struct {
 		name   string
@@ -101,7 +101,7 @@ func Test_value_Get(t *testing.T) {
 					},
 					nextVal: 22,
 				},
-				nulls: NewNull(1, 100),
+				nulls: newNull(1, 100),
 			},
 			nil,
 		},
@@ -137,7 +137,7 @@ func Test_value_Get(t *testing.T) {
 func Test_value_AssignTo(t *testing.T) {
 	type fields struct {
 		Value Value
-		nulls *Probability
+		nulls *probability
 	}
 	tests := []struct {
 		name   string
@@ -154,7 +154,7 @@ func Test_value_AssignTo(t *testing.T) {
 					},
 					nextVal: 22,
 				},
-				nulls: NewNull(1, 100),
+				nulls: newNull(1, 100),
 			},
 			0,
 		},

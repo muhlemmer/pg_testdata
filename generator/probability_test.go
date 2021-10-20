@@ -34,25 +34,25 @@ func allTrueBool(size int) []bool {
 	return bs
 }
 
-func TestProbability_Get(t *testing.T) {
+func Test_probability_get(t *testing.T) {
 	tests := []struct {
 		name string
-		p    *Probability
+		p    *probability
 		want []bool
 	}{
 		{
 			"0 probability",
-			NewProbability(1, 0),
+			newProbability(1, 0),
 			make([]bool, 100),
 		},
 		{
 			"100 probability",
-			NewProbability(1, 100),
+			newProbability(1, 100),
 			allTrueBool(100),
 		},
 		{
 			"50 probability",
-			NewProbability(1, 50),
+			newProbability(1, 50),
 			[]bool{false, false, true, false, false, true, true, true, false, true},
 		},
 	}
@@ -61,11 +61,11 @@ func TestProbability_Get(t *testing.T) {
 			got := make([]bool, len(tt.want))
 
 			for i := range got {
-				got[i] = tt.p.Get()
+				got[i] = tt.p.get()
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Probability.Get() =\n%v\nwant\n%v", got, tt.want)
+				t.Errorf("probability.get() =\n%v\nwant\n%v", got, tt.want)
 			}
 		})
 	}

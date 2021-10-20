@@ -18,16 +18,27 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// Package generator provides pgtype specific value generators.
+// Generation is driven by the pseudo-random number generator from `math/rand`.
+// This allows for deterministic value generation, using a seed for each constructor.
+// Note that this determinism is also affected by other parameters,
+// such as a minimum or maximum value.
+//
+// Each constructor also takes an argument for percentage of probability
+// for a SQL null with each newly generated value.
+// If the probability is 0 or lower, random null generation is disabled.
+// Use this mode for columns with constraint NOT NULL.
+// If the probability is 100 or higher, only nulls are generated.
 package generator
 
 import (
 	"github.com/jackc/pgtype"
 )
 
-// NewNull returns a Probability generator if nullProbability > 0, nil otherwise.
-func NewNull(seed int64, nullProbability int) *Probability {
+// newNull returns a Probability generator if nullProbability > 0, nil otherwise.
+func newNull(seed int64, nullProbability int) *probability {
 	if nullProbability > 0 {
-		return NewProbability(seed, nullProbability)
+		return newProbability(seed, nullProbability)
 	}
 	return nil
 }
@@ -41,11 +52,11 @@ type Value interface {
 
 type value struct {
 	Value
-	nulls *Probability
+	nulls *probability
 }
 
 func (v *value) nextStatusValue() {
-	if v.nulls != nil && v.nulls.Get() {
+	if v.nulls != nil && v.nulls.get() {
 		v.Set(nil)
 		return
 	}
