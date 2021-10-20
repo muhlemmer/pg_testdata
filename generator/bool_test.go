@@ -28,8 +28,8 @@ import (
 func Test_boolType(t *testing.T) {
 	type args struct {
 		seed            int64
-		nullProbability int
-		probability     int
+		nullProbability float32
+		probability     float32
 	}
 	tests := []struct {
 		name string
@@ -54,7 +54,7 @@ func Test_boolType(t *testing.T) {
 		{
 			"random",
 			args{3, 0, 50},
-			true,
+			false,
 		},
 	}
 	for _, tt := range tests {

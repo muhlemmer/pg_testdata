@@ -37,10 +37,10 @@ var example = Config{
 				{
 					Name:            "published",
 					Seed:            2,
-					NullProbability: 0,
+					NullProbability: 0.0,
 					Type:            "bool",
 					Generator: map[ArgName]interface{}{
-						ProbabilityArg: 70,
+						ProbabilityArg: 70.1,
 					},
 				},
 			},

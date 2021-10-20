@@ -25,28 +25,28 @@ import (
 )
 
 // maxProbability represents 100%.
-const maxProbability = 100
+const maxProbability = 100.0
 
 // probability is a pseudo-random and deterministic generator of booleans.
 // With a probability value of 100 or higher, only `true` will be generated
 // and a probability value of 0 or lower will only generate `false`.
 type probability struct {
-	probability int
 	rand        *rand.Rand
+	probability float32
 }
 
 // newProbability returns a Probability, with the random source initialized with seed.
 // and the percentage of probability at which it will generate `true` values.
-func newProbability(seed int64, prob int) *probability {
+func newProbability(seed int64, prob float32) *probability {
 	return &probability{
-		probability: prob,
 		rand: rand.New(
 			rand.NewSource(seed),
 		),
+		probability: prob,
 	}
 }
 
 // get the next random bool value.
 func (p *probability) get() bool {
-	return p.rand.Intn(maxProbability) < p.probability
+	return p.rand.Float32()*100.0 < p.probability
 }

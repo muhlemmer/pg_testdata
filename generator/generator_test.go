@@ -30,7 +30,7 @@ import (
 func Test_newNull(t *testing.T) {
 	type args struct {
 		seed            int64
-		nullProbability int
+		nullProbability float32
 	}
 	tests := []struct {
 		name string

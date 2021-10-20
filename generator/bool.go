@@ -39,7 +39,7 @@ func (b *boolType) NextValue() {
 // Probability is a percentage of chance `true` values are generated on each read.
 // If probability is 0 or lower, only `false` values are generated.
 // If probability is 100 or highter, only `true` values are generated.
-func NewBool(seed int64, nullProbabilty, probabilty int) Value {
+func NewBool(seed int64, nullProbabilty, probabilty float32) Value {
 	return &value{
 		Value: &boolType{
 			generator: newProbability(seed, probabilty),

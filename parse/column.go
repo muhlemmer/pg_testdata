@@ -46,7 +46,7 @@ const (
 type column struct {
 	Name            string
 	Seed            int64
-	NullProbability int
+	NullProbability float32
 	Type            TypeName
 	Generator       map[ArgName]interface{}
 }
@@ -84,15 +84,24 @@ func (c *column) requiredGenOpts(tp TypeName, keys ...ArgName) {
 	}
 }
 
+func (c *column) assertFloat32(v interface{}) float32 {
+	switch f := v.(type) {
+	case float32:
+		return f
+	case float64:
+		return float32(f)
+	case int:
+		return float32(f)
+	default:
+		c.panic(fmt.Errorf("bool \"probabilty\" incorrect type: %T, expected: float32", v))
+		return 0
+	}
+}
+
 func (c *column) boolType() generator.Value {
 	c.requiredGenOpts(BoolType, ProbabilityArg)
 
-	prob, ok := c.Generator[ProbabilityArg].(int)
-	if !ok {
-		c.panic(fmt.Errorf("bool \"probabilty\" incorrect type: %T, expected: int", c.Generator[ProbabilityArg]))
-	}
-
-	return generator.NewBool(c.Seed, c.NullProbability, prob)
+	return generator.NewBool(c.Seed, c.NullProbability, c.assertFloat32(c.Generator[ProbabilityArg]))
 }
 
 // valueGenerator panics in case of an invalid Type argument.

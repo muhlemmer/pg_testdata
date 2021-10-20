@@ -36,7 +36,7 @@ import (
 )
 
 // newNull returns a Probability generator if nullProbability > 0, nil otherwise.
-func newNull(seed int64, nullProbability int) *probability {
+func newNull(seed int64, nullProbability float32) *probability {
 	if nullProbability > 0 {
 		return newProbability(seed, nullProbability)
 	}

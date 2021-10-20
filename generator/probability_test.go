@@ -43,17 +43,17 @@ func Test_probability_get(t *testing.T) {
 		{
 			"0 probability",
 			newProbability(1, 0),
-			make([]bool, 100),
+			make([]bool, 1000),
 		},
 		{
 			"100 probability",
 			newProbability(1, 100),
-			allTrueBool(100),
+			allTrueBool(1000),
 		},
 		{
 			"50 probability",
 			newProbability(1, 50),
-			[]bool{false, false, true, false, false, true, true, true, false, true},
+			[]bool{false, false, false, true, true, false, true, true, true, true},
 		},
 	}
 	for _, tt := range tests {

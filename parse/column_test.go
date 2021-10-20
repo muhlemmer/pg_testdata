@@ -87,10 +87,66 @@ func Test_column_requiredGenOpts(t *testing.T) {
 	}
 }
 
+func Test_assertFloat32(t *testing.T) {
+	c := &column{
+		Name: "test",
+	}
+
+	tests := []struct {
+		name    string
+		v       interface{}
+		want    float32
+		wantErr bool
+	}{
+		{
+			"float32",
+			float32(1),
+			1,
+			false,
+		},
+		{
+			"float64",
+			float64(1),
+			1,
+			false,
+		},
+		{
+			"int",
+			1,
+			1,
+			false,
+		},
+		{
+			"string",
+			"foo",
+			0,
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := func() (err error) {
+				defer func() { err, _ = recover().(error) }()
+
+				if got := c.assertFloat32(tt.v); got != tt.want {
+					t.Errorf("column.assertFloat32() = %v, want %v", got, tt.want)
+				}
+
+				return
+			}()
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("column.boolType() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
 func Test_column_boolType(t *testing.T) {
 	type fields struct {
 		Seed            int64
-		NullProbability int
+		NullProbability float32
 		Generator       map[ArgName]interface{}
 	}
 	tests := []struct {
@@ -103,7 +159,7 @@ func Test_column_boolType(t *testing.T) {
 			"Missing arg",
 			fields{
 				Seed:            1,
-				NullProbability: 2,
+				NullProbability: 2.0,
 				Generator:       nil,
 			},
 			nil,
@@ -113,7 +169,7 @@ func Test_column_boolType(t *testing.T) {
 			"Wrong probability type",
 			fields{
 				Seed:            1,
-				NullProbability: 2,
+				NullProbability: 2.0,
 				Generator:       map[ArgName]interface{}{ProbabilityArg: "foo"},
 			},
 			nil,
@@ -123,8 +179,8 @@ func Test_column_boolType(t *testing.T) {
 			"OK",
 			fields{
 				Seed:            1,
-				NullProbability: 2,
-				Generator:       map[ArgName]interface{}{ProbabilityArg: 50},
+				NullProbability: 2.0,
+				Generator:       map[ArgName]interface{}{ProbabilityArg: float32(50.0)},
 			},
 			generator.NewBool(1, 2, 50),
 			false,
@@ -186,7 +242,7 @@ func Test_column_valueGenerator(t *testing.T) {
 			"bool type",
 			fields{
 				Type:      BoolType,
-				Generator: map[ArgName]interface{}{ProbabilityArg: 50},
+				Generator: map[ArgName]interface{}{ProbabilityArg: float32(50)},
 			},
 			generator.NewBool(1, 2, 50),
 			false,

@@ -9,4 +9,4 @@ tables:
     nullprobability: 0
     type: bool
     generator:
-      probability: 70
+      probability: 70.1
