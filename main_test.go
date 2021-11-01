@@ -25,6 +25,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -40,9 +41,24 @@ var (
 	testDB  *pgxpool.Pool
 )
 
-const (
-	testDSN = "host=db dbname=testdata user=testdata"
-)
+func testDSN() string {
+	params := map[string]string{
+		"PGHOST":     "db",
+		"PGDATABASE": "testdata",
+		"PGUSER":     "testdata",
+		"PGPORT":     "5432",
+	}
+
+	for k := range params {
+		if v, ok := os.LookupEnv(k); ok {
+			params[k] = v
+		}
+	}
+
+	const dsnFmt = "host=%s dbname=%s user=%s port=%s"
+
+	return fmt.Sprintf(dsnFmt, params["PGHOST"], params["PGDATABASE"], params["PGUSER"], params["PGPORT"])
+}
 
 func execQuerySlice(ctx context.Context, sqls []string) {
 	for _, sql := range sqls {
@@ -65,7 +81,7 @@ func TestMain(m *testing.M) {
 	testCtx, cancel = context.WithTimeout(context.Background(), 30*time.Second)
 
 	runWithCtxTimeout(testCtx, 1*time.Second, func(c context.Context) {
-		testDB = connectDB(c, testDSN)
+		testDB = connectDB(c, testDSN())
 	})
 
 	execQuerySlice(testCtx, strings.SplitAfter(dropTablesSQL, ";"))
@@ -90,7 +106,7 @@ func Test_connectDB(t *testing.T) {
 		},
 		{
 			"Success",
-			testDSN,
+			testDSN(),
 			false,
 		},
 	}
