@@ -1,3 +1,14 @@
+dist: focal
+
+addons:
+  postgresql: "14"
+  apt:
+    sources:
+      - sourceline: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
+        key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    packages:
+      - postgresql-14
+
 language: go
 
 go:
@@ -8,13 +19,6 @@ go:
 jobs:
   allow_failures:
   - go: master
-
-addons:
-  postgresql: "14"
-  apt:
-    packages:
-    - postgresql-14
-    - postgresql-client-14
 
 env:
   global:
