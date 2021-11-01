@@ -154,6 +154,8 @@ func Test_acquireConn(t *testing.T) {
 			err := func() (err error) {
 				defer func() { err, _ = recover().(error) }()
 				conn := acquireConn(tt.ctx, testDB)
+				defer conn.Release()
+
 				return conn.Ping(testCtx)
 			}()
 

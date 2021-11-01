@@ -120,7 +120,10 @@ func Test_prepareInsert(t *testing.T) {
 			err := func() (err error) {
 				defer func() { err, _ = recover().(error) }()
 
-				_, gotArgs := prepareInsert(tt.args.ctx, acquireConn(testCtx, testDB), tt.args.table)
+				conn := acquireConn(testCtx, testDB)
+				defer conn.Release()
+
+				_, gotArgs := prepareInsert(tt.args.ctx, conn, tt.args.table)
 				if len(gotArgs) != tt.wantArgsLen {
 					t.Errorf("prepareInsert() gotArgsLen = %d, want %d", gotArgs, tt.wantArgsLen)
 				}

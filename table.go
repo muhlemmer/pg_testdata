@@ -51,6 +51,8 @@ func execInserts(ctx context.Context, pool *pgxpool.Pool, table *parse.Table) {
 	defer cancel()
 
 	conn := acquireConn(ctx, pool)
+	defer conn.Release()
+
 	sd, args := prepareInsert(ctx, conn, table)
 
 	for i := 0; i < table.Amount; i++ {
