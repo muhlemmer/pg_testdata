@@ -34,7 +34,7 @@ func Test_columnError_Error(t *testing.T) {
 		"column",
 	}
 
-	const want = "foobar in column column"
+	const want = "foobar in column \"column\""
 
 	if got := e.Error(); got != want {
 		t.Errorf("columnError.Error() = %v, want %v", got, want)
@@ -71,7 +71,7 @@ func Test_column_requiredGenOpts(t *testing.T) {
 			err := func() (err error) {
 				defer func() { err, _ = recover().(error) }()
 
-				c := &column{
+				c := &Column{
 					Generator: tt.Generator,
 				}
 				c.requiredGenOpts(tt.args.tp, tt.args.keys...)
@@ -88,7 +88,7 @@ func Test_column_requiredGenOpts(t *testing.T) {
 }
 
 func Test_assertFloat32(t *testing.T) {
-	c := &column{
+	c := &Column{
 		Name: "test",
 	}
 
@@ -188,7 +188,7 @@ func Test_column_boolType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &column{
+			c := &Column{
 				Seed:            tt.fields.Seed,
 				NullProbability: tt.fields.NullProbability,
 				Generator:       tt.fields.Generator,
@@ -213,7 +213,7 @@ func Test_column_boolType(t *testing.T) {
 const unsupportedType TypeName = "unsupported"
 
 func Test_column_valueGenerator(t *testing.T) {
-	col := column{
+	col := Column{
 		Name:            "test_column",
 		Seed:            1,
 		NullProbability: 2,
@@ -253,7 +253,7 @@ func Test_column_valueGenerator(t *testing.T) {
 			err := func() (err error) {
 				defer func() { err, _ = recover().(error) }()
 
-				c := &column{
+				c := &Column{
 					Name:            col.Name,
 					Seed:            col.Seed,
 					NullProbability: col.NullProbability,

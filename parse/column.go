@@ -42,8 +42,8 @@ const (
 	ProbabilityArg ArgName = "probability"
 )
 
-// column information and parameters.
-type column struct {
+// Column information and parameters.
+type Column struct {
 	Name            string
 	Seed            int64
 	NullProbability float32
@@ -57,10 +57,10 @@ type columnError struct {
 }
 
 func (e *columnError) Error() string {
-	return fmt.Sprintf("%v in column %s", e.err, e.column)
+	return fmt.Sprintf("%v in column %q", e.err, e.column)
 }
 
-func (c *column) panic(err error) {
+func (c *Column) panic(err error) {
 	panic(&columnError{
 		err:    err,
 		column: c.Name,
@@ -70,7 +70,7 @@ func (c *column) panic(err error) {
 // requiredGenOpts checks if the required "keys" are present in the
 // Generator arguments map. If any keys are found missing,
 // all missing keys are collected and passed to panic() in a MissingArgsError.
-func (c *column) requiredGenOpts(tp TypeName, keys ...ArgName) {
+func (c *Column) requiredGenOpts(tp TypeName, keys ...ArgName) {
 	var missing []string
 
 	for _, k := range keys {
@@ -84,7 +84,7 @@ func (c *column) requiredGenOpts(tp TypeName, keys ...ArgName) {
 	}
 }
 
-func (c *column) assertFloat32(v interface{}) float32 {
+func (c *Column) assertFloat32(v interface{}) float32 {
 	switch f := v.(type) {
 	case float32:
 		return f
@@ -98,14 +98,14 @@ func (c *column) assertFloat32(v interface{}) float32 {
 	}
 }
 
-func (c *column) boolType() generator.Value {
+func (c *Column) boolType() generator.Value {
 	c.requiredGenOpts(BoolType, ProbabilityArg)
 
 	return generator.NewBool(c.Seed, c.NullProbability, c.assertFloat32(c.Generator[ProbabilityArg]))
 }
 
 // valueGenerator panics in case of an invalid Type argument.
-func (c *column) valueGenerator() generator.Value {
+func (c *Column) valueGenerator() generator.Value {
 	switch c.Type {
 	case BoolType:
 		return c.boolType()

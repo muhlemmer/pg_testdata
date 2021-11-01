@@ -23,19 +23,33 @@ package parse
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
-var example = Config{
-	DSN: "dbname=testdb user=testuser password=xxx host=localhost port=5432 sslmode=require fallback_application_name=pg_testdata connect_timeout=10",
+var testConf = Config{
+	DSN: "dbname=testdata user=testdata host=db port=5432 connect_timeout=10",
 	Tables: []*Table{
 		{
-			Name:   "articles",
-			Amount: 10000,
-			Columns: []*column{
+			Name:   "all_supported",
+			Amount: 1000,
+			MaxDuration: TableDurations{
+				Table: time.Minute,
+				Exec:  time.Second,
+			},
+			Columns: []*Column{
 				{
-					Name:            "published",
+					Name:            "bool_col_n",
+					Seed:            2,
+					NullProbability: 10.0,
+					Type:            "bool",
+					Generator: map[ArgName]interface{}{
+						ProbabilityArg: 70.1,
+					},
+				},
+				{
+					Name:            "bool_col_nn",
 					Seed:            2,
 					NullProbability: 0.0,
 					Type:            "bool",
@@ -58,7 +72,7 @@ func writeExample(filename string) error {
 	enc := yaml.NewEncoder(f)
 	defer enc.Close()
 
-	if err = enc.Encode(&example); err != nil {
+	if err = enc.Encode(&testConf); err != nil {
 		return fmt.Errorf("writeExample: %w", err)
 	}
 

@@ -1,7 +1,7 @@
 language: go
 
 go:
-- 1.15
+- 1.16
 - 1.x
 - master
 
@@ -9,9 +9,26 @@ jobs:
   allow_failures:
   - go: master
 
+addons:
+  postgresql: "14"
+  apt:
+    packages:
+    - postgresql-14
+    - postgresql-client-14
+
+env:
+  global:
+  - PGPORT=5433
+  - PGUSER=travis
+  - PGDATABASE=testdata
+
+before_script:
+  - createdb
+
 script:
   - go test -race -coverprofile=generator.cov -covermode=atomic ./generator
   - go test -race -coverprofile=parse.cov -covermode=atomic ./parse
+  - go test -race -coverprofile=main.cov -covermode=atomic ./
 
 after_script:
   - bash <(curl -s https://codecov.io/bash) -f '*.cov'

@@ -18,36 +18,41 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Package parse loads yaml from a configuration file, parses its arguments
-// and initializes queries with type specific generator arguments.
 package parse
 
 import (
+	"bytes"
 	"fmt"
-
-	"gopkg.in/yaml.v2"
+	"os"
+	"path/filepath"
+	"text/template"
 )
 
-// Config structure root, meant to be marshalled / unmarshalled with yaml.
-type Config struct {
-	DSN    string // Data Source Name, aka connection string.
-	Tables []*Table
+func lookupEnv(key, defValue string) string {
+	if v, ok := os.LookupEnv(key); ok {
+		return v
+	}
+
+	return defValue
 }
 
-// Load a yaml config file.
-func Load(filename string) (*Config, error) {
-	buf, err := yamlTemplate(nil, filename)
+var funcMap = template.FuncMap{"env": lookupEnv}
+
+func yamlTemplate(data interface{}, filename string) (*bytes.Buffer, error) {
+	tmpl := template.New(filepath.Base(filename))
+	tmpl.Funcs(funcMap)
+
+	var err error
+
+	tmpl, err = tmpl.ParseFiles(filename)
 	if err != nil {
-		return nil, fmt.Errorf("parse.Load: %w", err)
+		return nil, fmt.Errorf("parse.yamlTemplate: %w", err)
 	}
 
-	dec := yaml.NewDecoder(buf)
-
-	conf := new(Config)
-
-	if err = dec.Decode(conf); err != nil {
-		return nil, fmt.Errorf("parse.Load: %w", err)
+	buf := new(bytes.Buffer)
+	if err = tmpl.Execute(buf, data); err != nil {
+		return nil, fmt.Errorf("parse.yamlTemplate: %w", err)
 	}
 
-	return conf, nil
+	return buf, nil
 }

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    image: pg_testdata:local
+    restart: on-failure
+    depends_on:
+      - db
+    build:
+      context: .devcontainer
+      args:
+        VARIANT: "1-bullseye"
+        SNODE_VERSION: "none"
+    networks:
+      - data
+    ports:
+      - 127.0.0.1:6060:6060
+    volumes:
+      - .:/workspace:cached
+      - ${HOME}/.ssh:/home/vscode/.ssh
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    command: /bin/bash -c "cd /workspace && godoc -http :6060"
+
+  db:
+    image: postgres:latest
+    restart: on-failure
+    networks:
+      - data
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: testdata
+
+networks:
+  data:

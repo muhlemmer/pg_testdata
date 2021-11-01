@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+	"time"
 )
 
 const insertQuery = "insert into {{ .Table }} ({{ .Columns }}) values ({{ .Positions }});"
@@ -42,11 +43,16 @@ type insertData struct {
 	Positions commaList
 }
 
+type TableDurations struct {
+	Table, Exec time.Duration
+}
+
 // Table definition
 type Table struct {
-	Name    string // Name of the Table
-	Amount  int    // Amount of Rows to generate and insert
-	Columns []*column
+	Name        string         // Name of the Table
+	Amount      int            // Amount of Rows to generate and insert
+	MaxDuration TableDurations `yaml:"max_duration"`
+	Columns     []*Column
 }
 
 func (table *Table) insert(tmpl *template.Template) (string, []interface{}) {
@@ -81,7 +87,7 @@ func (table *Table) insert(tmpl *template.Template) (string, []interface{}) {
 func (table *Table) InsertQuery() (stmt string, args []interface{}, err error) {
 	defer func() {
 		if err, _ = recover().(error); err != nil {
-			err = fmt.Errorf("parse.InsertQuery: %w in table %s", err, table.Name)
+			err = fmt.Errorf("parse.InsertQuery: %w in table %q", err, table.Name)
 		}
 	}()
 

@@ -28,7 +28,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	if err := writeExample("../example.yml"); err != nil {
+	if err := writeExample("../testdata/all_supported.yml"); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -50,14 +50,14 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			"Invalid file",
-			"./invalid.yml",
+			"../testdata/invalid.yml",
 			nil,
 			true,
 		},
 		{
 			"Example config",
-			"../example.yml",
-			&example,
+			"../testdata/all_supported.yml",
+			&testConf,
 			false,
 		},
 	}

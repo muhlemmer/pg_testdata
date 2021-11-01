@@ -1,0 +1,20 @@
+dsn: dbname={{ env "PGDATABASE" "testdata" }} user={{ env "PGUSER" "testdata" }} host={{ env "PGHOST" "db" }} port={{ env "PGPORT" "5432" }} connect_timeout=10
+tables:
+- name: regression_tests
+  amount: 1000
+  max_duration:
+    table: 1m0s
+    exec: 1s
+  columns:
+  - name: bool_col_n
+    seed: 2
+    nullprobability: 10
+    type: bool
+    generator:
+      probability: 70.1
+  - name: bool_col_nn
+    seed: 2
+    nullprobability: 0
+    type: bool
+    generator:
+      probability: 70.1

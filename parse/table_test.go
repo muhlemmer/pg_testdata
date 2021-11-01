@@ -70,7 +70,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*column{
+				Columns: []*Column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -90,7 +90,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*column{
+				Columns: []*Column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -112,7 +112,7 @@ func Test_Table_insert(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*column{
+				Columns: []*Column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -178,7 +178,7 @@ func Test_Table_InsertQuery(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*column{
+				Columns: []*Column{
 					{
 						Name:            "published",
 						Seed:            1,
@@ -197,7 +197,7 @@ func Test_Table_InsertQuery(t *testing.T) {
 			Table{
 				Name:   "articles",
 				Amount: 10,
-				Columns: []*column{
+				Columns: []*Column{
 					{
 						Name:            "published",
 						Seed:            1,
